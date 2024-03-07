@@ -1,4 +1,8 @@
 use anyhow::Result;
+use serde_json;
+use serde::{Serialize, Deserialize};
+
+use std::{fs::File, io::Read};
 
 use crate::models::{DBState, Epic, Story, Status};
 
@@ -13,7 +17,14 @@ struct JSONFileDatabase {
 
 impl Database for JSONFileDatabase {
     fn read_db(&self) -> Result<DBState> {
-        todo!() // read the content's of self.file_path and deserialize it using serde
+        // read the content's of self.file_path and deserialize it using serde
+        let path = self.file_path.clone();
+        let mut contents = String::new();
+        if let Ok(mut file) = File::open(path) {
+            file.read_to_string(&mut contents);
+        }
+        let state: DBState = serde_json::from_str(&contents).expect("Failed to deserialize");
+        Ok(state)
     }
 
     fn write_db(&self, db_state: &DBState) -> Result<()> {
